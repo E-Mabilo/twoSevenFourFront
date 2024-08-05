@@ -1,152 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find the Shortest Path</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input {
-            display: block;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            padding: 8px;
-            width: 300px;
-            max-width: 100%;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #result {
-            margin-top: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-    <h1>Find the Shortest Path</h1>
-    <form id="pathForm">
-        <label for="source">Source:</label>
-        <input type="text" id="source" name="source" required>
-        <label for="destination">Destination:</label>
-        <input type="text" id="destination" name="destination" required>
-        <button type="submit">Find Path</button>
-    </form>
-    <div id="result">
-        <!-- Results will be displayed here -->
-    </div>
 
-    <script>
-        document.getElementById('pathForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent form from submitting the default way
-            const source = document.getElementById('source').value;
-            const destination = document.getElementById('destination').value;
+<h1>Find the Shortest Path</h1>
+<form (submit)="onSubmit(); $event.preventDefault()">
+  <label for="source">Source:</label>
+  <input type="text" id="source" [(ngModel)]="source" name="source" required>
+  <label for="destination">Destination:</label>
+  <input type="text" id="destination" [(ngModel)]="destination" name="destination" required>
+  <button type="submit">Find Path</button>
+</form>
+<div id="result">
+  <table *ngIf="path.length > 0">
+    <tr>
+      <th>Step</th>
+      <th>Node</th>
+    </tr>
+    <tr *ngFor="let node of path; index as i">
+      <td>{{ i + 1 }}</td>
+      <td>{{ node }}</td>
+    </tr>
+  </table>
+  <p *ngIf="error">{{ error }}</p>
+</div>
 
-            // Create the request payload
-            const payload = {
-                start: source,
-                end: destination
-            };
-
-            // Send a POST request to the server
-            fetch('/shortest-path', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Clear previous results
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = '';
-
-                if (data.nodes && data.nodes.length > 0) {
-                    // Create a table to display the results
-                    const table = document.createElement('table');
-                    const headerRow = document.createElement('tr');
-                    const headerCell1 = document.createElement('th');
-                    headerCell1.textContent = 'Step';
-                    const headerCell2 = document.createElement('th');
-                    headerCell2.textContent = 'Node';
-                    headerRow.appendChild(headerCell1);
-                    headerRow.appendChild(headerCell2);
-                    table.appendChild(headerRow);
-
-                    // Populate the table with the path nodes
-                    data.nodes.forEach((node, index) => {
-                        const row = document.createElement('tr');
-                        const cell1 = document.createElement('td');
-                        cell1.textContent = index + 1;
-                        const cell2 = document.createElement('td');
-                        cell2.textContent = node;
-                        row.appendChild(cell1);
-                        row.appendChild(cell2);
-                        table.appendChild(row);
-                    });
-
-                    // Append the table to the result div
-                    resultDiv.appendChild(table);
-                } else {
-                    resultDiv.textContent = 'No path found.';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').textContent = 'An error occurred while finding the path.';
-            });
-        });
-
-        fetch('/data/import', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-
-            });
-
-            fetch('/connect/nodesplanets/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-              
-            });
-    </script>
-</body>
-</html>
+<h1>Import Data</h1>
+<form (ngSubmit)="onImportData()">
+  <label for="data">Data (JSON format):</label>
+  <textarea id="data" name="data" rows="10" cols="50" [(ngModel)]="data"></textarea>
+  <button type="submit">Import Data</button>
+</form>
